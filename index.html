@@ -100,12 +100,15 @@
 
       var features = topojson.feature(data, data.objects.countries).features
       // Set whatever relative data to your countries here, modify the function if necessary
+      var myList = []
       features.forEach((element,index) => {
+        myList.push(element.properties.name)
         element.properties = {
           ...element.properties,
           test: index
         }
       });
+      console.log(myList)
 
       // Set the colors for the data you wish to appear here
       var myColor = d3.scaleLinear().domain([0,features.length])
