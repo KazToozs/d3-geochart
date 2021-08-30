@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -20,9 +19,22 @@
 
 
   // create a tooltip
-  var Tooltip = d3.select("#myMap")
-  .append('div')
+  // var Tooltip = d3.select("#myMap")
+  // .append('div')
+  // .style("opacity", 0)
+  // .attr("class", "tooltip")
+  // .style("background-color", "white")
+  // .style("border", "solid")
+  // .style("border-width", "2px")
+  // .style("border-radius", "5px")
+  // .style("padding", "5px")
+
+
+  var tooltip = d3.select("body")
+    .append("div")
     .style("opacity", 0)
+    .style("position", "absolute")
+    .style("z-index", "10")
     .attr("class", "tooltip")
     .style("background-color", "white")
     .style("border", "solid")
@@ -32,7 +44,7 @@
 
   // Three function that change the tooltip when user hover / move / leave a cell
   var mouseover = function (d) {
-    Tooltip
+    tooltip
       .style("opacity", 1)
     d3.select(this)
       .style("stroke", "black")
@@ -41,16 +53,15 @@
   var mousemove = (event, d) => {
     const [x, y] = d3.pointer(event);
 
-    Tooltip
-      .html("The exact value of<br>this cell is: ")
-          // .attr('transform', `translate(${x}, ${y})`);
-          .style("left", (y + "px"))
-      .style("top", (x + "px"))
-          // .style("left", (d3.event.pageX + "px"))
-      // .style("top", (d3.event.pageY + "px"))
+    tooltip
+      // .style('transform', `translate(${x}, ${y})`);
+      .style("left", (x + "px"))
+      .style("top", (y + "px"))
+    // .style("left", (d3.event.pageX + "px"))
+    // .style("top", (d3.event.pageY + "px"))
   }
-  var mouseleave = function (d) {
-    Tooltip
+  var mouseout = function (d) {
+    tooltip
       .style("opacity", 0)
     d3.select(this)
       .style("stroke", "#999")
@@ -58,22 +69,25 @@
   }
 
   const svg = d3.select('#myMap').append('svg')
-  .attr('width', width)
-  .attr('height', height)
-  .style('position', 'absolute')
-  .style('left', '50%')
-  .style('top', '50%')
-  .style('transform', 'translate(-50%, -50%)')
+    // .attr('width', width)
+    // .attr('height', height)
+    .style('position', 'absolute')
+    .attr("viewBox", [0, 0, width, height]);
+    // .style('left', '50%')
+    // .style('top', '50%')
+    // .style('transform', 'translate(-50%, -50%)')
 
-  function zoomed(event) {
-    const { transform } = event;
-    g.attr("transform", transform);
-    g.attr("stroke-width", 1 / transform.k);
-  }
+  // function zoomed(event) {
+  //   const { transform } = event;
+  //   g.attr("transform", transform);
+  //   g.attr("stroke-width", 1 / transform.k);
+  //   tooltip.attr("transform", transform);
+  //   tooltip.attr("stroke-width", 1 / transform.k);
+  // }
 
-  const zoom = d3.zoom()
-    .scaleExtent([1, 8])
-    .on("zoom", zoomed);
+  // const zoom = d3.zoom()
+  //   .scaleExtent([1, 8])
+  //   .on("zoom", zoomed);
 
   const projection = d3.geoMercator().scale(140)
     .translate([width / 2, height / 1.4]);
@@ -82,8 +96,15 @@
 
   const g = svg.append('g')
 
-  svg.call(zoom);
+  function zoomed({transform}) {
+    g.attr("transform", transform);
+  }
 
+  // svg.call(zoom);
+  svg.call(d3.zoom()
+      .extent([[0, 0], [width, height]])
+      .scaleExtent([1, 8])
+      .on("zoom", zoomed));
 
   d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     .then(data => {
@@ -98,17 +119,11 @@
         .style('opacity', '0.8')
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
-        .on("mouseleave", mouseleave)
-        
-      country.append('div')
-      .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "2px")
-    .style("border-radius", "5px")
-    .style("padding", "5px")
-    
+        .on("mouseout", mouseout)
+        .append("title")
+      .text((d, i) => `circle ${i}`);
+
+
     });
 
 
