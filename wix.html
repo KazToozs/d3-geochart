@@ -102,6 +102,13 @@
                 .style("opacity", 0.8)
         }
 
+        var t=setInterval(function() {window.parent.postMessage("hello", "*");},1000);
+            if(dataEV.length > 0) { // if no locations, let page know
+                clearInterval(t);
+
+            }
+        
+        
         window.onmessage = function (event) {
             if (event.data && Array.isArray(event.data)) {
                 event.data.forEach((d) => {
@@ -121,11 +128,11 @@
                 // Set whatever relative data to your countries here, modify the function if necessary
                 features.forEach((element, index) => {
                     var relevantCountry = dataEV.find((e) => {
-                        console.log(e.country, element.properties.name)
 
                         return e.country === element.properties.name
                     })
                     if (relevantCountry != undefined) {
+
                         element.properties = {
                             ...element.properties,
                             "evPercentage": relevantCountry.evPercentage,
